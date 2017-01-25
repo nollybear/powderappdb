@@ -8,9 +8,9 @@ EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
 name_regex = re.compile(r'^[a-zA-Z]+')
 
 class UserManager(models.Manager):
-    def login(self, post):
-        login_email = post['login_email']
-        login_password = post['login_password']
+    def login(self, body_data):
+        login_email = body_data['login_email']
+        login_password = body_data['login_password']
 
         errors =[]
 
@@ -31,11 +31,11 @@ class UserManager(models.Manager):
             errors.append('Email does not exist')
         return (False, errors)
 
-    def register(self, post):
-        username = post['username']
-        email = post['email']
-        password = post['password']
-        confirm_password = post['confirm_password']
+    def register(self, body_data):
+        username = body_data['username']
+        email = body_data['email']
+        password = body_data['password']
+        confirm_password = body_data['confirm_password']
 
         errors = []
         user_list = User.objects.filter(email = email)

@@ -34,7 +34,9 @@ def python_add_user(request):
 
 @csrf_exempt
 def login(request):
-    result = models.User.objects.login(request.POST)
+    body_unicode = request.body.decode('utf-8')
+    body_data = json.loads(body_unicode)
+    result = models.User.objects.login(body_data)
     if result[0] == False:
         for i in result[1]:
             messages.add_message(request, messages.ERROR, i)
@@ -64,12 +66,17 @@ def tasks(request):
         response = serializers.serialize('json', allUsers)
         return HttpResponse(response)
     elif request.method == "POST":
-        new_powder_run = models.PowderRun.objects.add_new_powder_run(request.POST)
+        body_unicode = request.body.decode('utf-8')
+        body_data = json.loads(body_unicode)
+        new_powder_run = models.PowderRun.objects.add_new_powder_run(body_data)
         return HttpResponse(new_powder_run)
 
 @csrf_exempt
 def add_user(request):
-    result = models.User.objects.register(request.POST)
+    body_unicode = request.body.decode('utf-8')
+    body_data = json.loads(body_unicode)
+
+    result = models.User.objects.register(body_data)
     if result[0] == False:
         for i in result[1]:
             messages.add_message(request, messages.ERROR, i)
