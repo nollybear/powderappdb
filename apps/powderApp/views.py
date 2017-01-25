@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, HttpResponse
 from django.contrib import messages
 from . import models
 from django.core import serializers
-
+from django.views.decorators.csrf import csrf_exempt
 
 ###################### Login and Registration Section
 
@@ -65,7 +65,7 @@ def tasks(request):
         new_powder_run = models.PowderRun.objects.add_new_powder_run(request.POST)
         return HttpResponse(new_powder_run)
 
-
+@csrf_exempt
 def add_user(request):
     result = models.User.objects.register(request.POST)
     if result[0] == False:
