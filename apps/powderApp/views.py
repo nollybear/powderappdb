@@ -77,7 +77,6 @@ def add_user(request):
         response = serializers.serialize('json', result[1])
         return HttpResponse(response)
     else:
-        response = serializers.serialize('json', result[1])
-        print("Made it to else statement, success, in add_user")
-        return HttpResponse(response)
-        # log_user_in(request, result[1])
+       query = User.objects.get(id= result[1].id)
+       response = serializers.serialize('json', query)
+       return HttpResponse(response)        # log_user_in(request, result[1])
