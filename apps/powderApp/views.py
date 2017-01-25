@@ -73,17 +73,18 @@ def tasks(request):
 
 @csrf_exempt
 def add_user(request):
-    body_unicode = request.body.decode('utf-8')
-    body_data = json.loads(body_unicode)
+    if request.method == "POST":
+        body_unicode = request.body.decode('utf-8')
+        body_data = json.loads(body_unicode)
 
-    result = models.User.objects.register(body_data)
-    if result[0] == False:
-        for i in result[1]:
-            messages.add_message(request, messages.ERROR, i)
-        print("In add_user, made it to for loop when result0 is false")
-        response = serializers.serialize('json', result[1])
-        return HttpResponse(response)
-    else:
-       query = User.objects.get(id= result[1].id)
-       response = serializers.serialize('json', query)
-       return HttpResponse(response)        # log_user_in(request, result[1])
+        result = models.User.objects.register(body_data)
+        if result[0] == False:
+            for i in result[1]:
+                messages.add_message(request, messages.ERROR, i)
+            print("In add_user, made it to for loop when result0 is false")
+            response = serializers.serialize('json', result[1])
+            return HttpResponse(response)
+        else:
+           query = User.objects.get(id= result[1].id)
+           response = serializers.serialize('json', query)
+           return HttpResponse(response)        # log_user_in(request, result[1])
