@@ -32,6 +32,7 @@ def python_add_user(request):
     else:
         return log_user_in(request, result[1])
 
+@csrf_exempt
 def login(request):
     result = models.User.objects.login(request.POST)
     if result[0] == False:
@@ -56,6 +57,7 @@ def logout(request):
 # ---------- End of Login and Registration Section -------
 
 ##### httpresponse route to process GET requests for runData ---------
+@csrf_exempt
 def tasks(request):
     if request.method == "GET":
         allUsers = models.User.objects.all()
@@ -71,8 +73,11 @@ def add_user(request):
     if result[0] == False:
         for i in result[1]:
             messages.add_message(request, messages.ERROR, i)
-        return redirect('/')
+        print("In add_user, made it to for loop when result0 is false")
+        response = serializers.serialize('json', result[1])
+        return HttpResponse(response)
     else:
         response = serializers.serialize('json', result[1])
+        print("Made it to else statement, success, in add_user")
         return HttpResponse(response)
         # log_user_in(request, result[1])
