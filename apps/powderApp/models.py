@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect
-
+import json
 from django.db import models
 import re, bcrypt
 EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
@@ -32,10 +32,12 @@ class UserManager(models.Manager):
         return (False, errors)
 
     def register(self, body_data):
-        username = body_data['username']
-        email = body_data['email']
-        password = body_data['password']
-        confirm_password = body_data['confirm_password']
+        intakeData = body_data.decode('utf-8')
+        data = json.loads(intakeData)
+        username = data['username']
+        email = data['email']
+        password = data['password']
+        confirm_password = data['confirm_password']
 
         errors = []
         user_list = User.objects.filter(email = email)
@@ -64,9 +66,10 @@ class UserManager(models.Manager):
             errors.append('Passwords do not match!')
         if len(errors) > 0:
             return (False, errors)
-        pw_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
-        user = self.create(username=username, email=email, pw_hash=pw_hash)
-        return (True, user)
+        else:
+            pw_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+            user = self.create(username=username, email=email, pw_hash=pw_hash)
+            return (True, user)
 
 
 class User(models.Model):
@@ -81,15 +84,17 @@ class User(models.Model):
 
 class PowderRunManager(models.Manager):
     #add in other fields that will be passed through and saved to each powderRun
-    def add_new_powder_run(self, post):
-        altitudeDrop = post['altitudeDrop']
-        distance = post['distance']
-        time = post['time']
-        topSpeed = post['topSpeed']
-        avgSpeed = post['avgSpeed']
-        biffsCount = post['biffsCount']
-        jumpsCount = post['jumpsCount']
-        userID = post['userID']
+    def add_new_powder_run(self, body_data):
+        intakeData = body_data.decode('utf-8')
+        data = json.loads(intakeData)
+        altitudeDrop = data['altitudeDrop']
+        distance = data['distance']
+        time = data['time']
+        topSpeed = data['topSpeed']
+        avgSpeed = data['avgSpeed']
+        biffsCount = data['biffsCount']
+        jumpsCount = data['jumpsCount']
+        userID = 1 # this is what it will be when we store NSUserID <data['userID']>
         user = User.objects.get(id=userID)
         new_powder_run = self.create(user=user, altitudeDrop=altitudeDrop, distance=distance, time=time, topSpeed=topSpeed, avgSpeed=avgSpeed, biffsCount=biffsCount, jumpsCount=jumpsCount)
         return (True, new_powder_run)

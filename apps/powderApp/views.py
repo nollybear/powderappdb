@@ -3,6 +3,7 @@ from django.contrib import messages
 from . import models
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
+import json
 
 ###################### Login and Registration Section
 
@@ -66,25 +67,34 @@ def tasks(request):
         response = serializers.serialize('json', allUsers)
         return HttpResponse(response)
     elif request.method == "POST":
-        body_unicode = request.body.decode('utf-8')
-        body_data = json.loads(body_unicode)
-        new_powder_run = models.PowderRun.objects.add_new_powder_run(body_data)
+
+        new_powder_run = models.PowderRun.objects.add_new_powder_run(request.body)
         return HttpResponse(new_powder_run)
 
 @csrf_exempt
 def add_user(request):
+    print("made it in to route")
     if request.method == "POST":
-        body_unicode = request.body.decode('utf-8')
-        body_data = json.loads(body_unicode)
-
-        result = models.User.objects.register(body_data)
+        print('making it to route through post')
+        print(request.body)
+        # body_unicode = request.body.decode('utf-8')
+        print("able to set body_unicode")
+        # body_data = json.loads(request.body)
+        print("able to set body_Data")
+        result = models.User.objects.register(request.body)
         if result[0] == False:
+            print('could not create user')
             for i in result[1]:
                 messages.add_message(request, messages.ERROR, i)
             print("In add_user, made it to for loop when result0 is false")
             response = serializers.serialize('json', result[1])
             return HttpResponse(response)
         else:
-           query = User.objects.get(id= result[1].id)
-           response = serializers.serialize('json', query)
-           return HttpResponse(response)        # log_user_in(request, result[1])
+            print('can create user')
+            print(result[1].username)
+            print(result[1].id)
+            print(result[1])
+            query = models.User.objects.get(id= result[1].id)
+            response = serializers.serialize('json', query)
+            return HttpResponse(response)        # log_user_in(request, result[1])
+    return HttpResponse("hello world")
